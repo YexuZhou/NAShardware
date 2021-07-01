@@ -62,6 +62,11 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
         opt.resume, opt.notest, opt.nosave, opt.workers
 
     # Directories
+    print("..........................................")
+    print("RANK: ",RANK)
+    print("..........................................")
+    print("opt :",opt)
+
     save_dir = Path(save_dir)
     wdir = save_dir / 'weights'
     wdir.mkdir(parents=True, exist_ok=True)  # make dir
@@ -335,6 +340,8 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
             # Forward
             with amp.autocast(enabled=cuda):
                 pred = model(imgs)  # forward
+                print(".................")
+                print(targets.size)
                 loss, loss_items = compute_loss(pred, targets.to(device))  # loss scaled by batch_size
                 if RANK != -1:
                     loss *= WORLD_SIZE  # gradient averaged between devices in DDP mode
