@@ -342,6 +342,7 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
                 pred = model(imgs)  # forward
                 print(".................")
                 print("targets: ",targets.size())
+                print("targets: ",targets)
                 print(".................")
                 print("imgs: ",imgs.size())
                 loss, loss_items = compute_loss(pred, targets.to(device))  # loss scaled by batch_size
