@@ -345,7 +345,7 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
                 #print("targets: ",targets.size())
                 #print("targets: ",targets)
                 #print(".................")
-                #print("imgs: ",imgs.size()) #   torch.Size([16, 3, 640, 640])
+                print("!!!!!!!!!!!!!!!!!!!!!!imgs: ",imgs.size()) #   torch.Size([16, 3, 640, 640])
                 #print(".................")
                 #print("targets: ",targets.size()) #  torch.Size([???, 6])
                 #print(".................")
