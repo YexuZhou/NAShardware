@@ -531,6 +531,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             print(index, "defined shape is ", shape)
             img, ratio, pad = letterbox(img, shape, auto=False, scaleup=self.augment)
             print(index, "the shape of letterbox img", img.shape)
+            print(index, "the ratio of letterbox img", ratio)
             shapes = (h0, w0), ((h / h0, w / w0), pad)  # for COCO mAP rescaling
 
             labels = self.labels[index].copy()
@@ -590,6 +591,9 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         img, label, path, shapes = zip(*batch)  # transposed
         for i, l in enumerate(label):
             l[:, 0] = i  # add target image index for build_targets()
+			
+        for i in img:
+            print(".........",i.shape) # add target image index for build_targets()
         return torch.stack(img, 0), torch.cat(label, 0), path, shapes
 
     @staticmethod
