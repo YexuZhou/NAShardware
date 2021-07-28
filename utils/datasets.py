@@ -532,6 +532,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             img, ratio, pad = letterbox(img, shape, auto=False, scaleup=self.augment)
             print(index, "the shape of letterbox img", img.shape)
             print(index, "the ratio of letterbox img", ratio)
+            print(index, "the pad of letterbox img", pad)
             shapes = (h0, w0), ((h / h0, w / w0), pad)  # for COCO mAP rescaling
 
             labels = self.labels[index].copy()
