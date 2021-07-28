@@ -570,7 +570,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         labels_out = torch.zeros((nL, 6))
         if nL:
             labels_out[:, 1:] = torch.from_numpy(labels)
-        print(labels_out)
+        #print(labels_out)
         # Convert
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3 x img_height x img_width
         img = np.ascontiguousarray(img)
