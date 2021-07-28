@@ -523,21 +523,21 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         else:
             # Load image
             img, (h0, w0), (h, w) = load_image(self, index)
-            print("orginial image size" , h0," ", w0)
-            print("resized image size" , h," ", w)
-            print("the shape of current img", img.size)
+            print(index, "orginial image size" , h0," ", w0)
+            print(index, "resized image size" , h," ", w)
+            print(index, "the shape of current img", img.size)
             # Letterbox
             shape = self.batch_shapes[self.batch[index]] if self.rect else self.img_size  # final letterboxed shape
-            print("defined shape is ", shape)
+            print(index, "defined shape is ", shape)
             img, ratio, pad = letterbox(img, shape, auto=False, scaleup=self.augment)
-            print("the shape of letterbox img", img.size)
+            print(index, "the shape of letterbox img", img.size)
             shapes = (h0, w0), ((h / h0, w / w0), pad)  # for COCO mAP rescaling
 
             labels = self.labels[index].copy()
             if labels.size:  # normalized xywh to pixel xyxy format
                 labels[:, 1:] = xywhn2xyxy(labels[:, 1:], ratio[0] * w, ratio[1] * h, padw=pad[0], padh=pad[1])
-            print("ratio[0] * w",ratio[0] * w)
-            print("ratio[1] * h",ratio[1] * h)
+            print(index, "ratio[0] * w",ratio[0] * w)
+            print(index, "ratio[1] * h",ratio[1] * h)
         if self.augment:
             # Augment imagespace
             if not mosaic:
