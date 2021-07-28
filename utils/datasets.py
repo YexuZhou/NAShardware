@@ -532,7 +532,8 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             labels = self.labels[index].copy()
             if labels.size:  # normalized xywh to pixel xyxy format
                 labels[:, 1:] = xywhn2xyxy(labels[:, 1:], ratio[0] * w, ratio[1] * h, padw=pad[0], padh=pad[1])
-
+            print("ratio[0] * w",ratio[0] * w)
+            print("ratio[1] * h",ratio[1] * h)
         if self.augment:
             # Augment imagespace
             if not mosaic:
@@ -553,7 +554,8 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         nL = len(labels)  # number of labels
         if nL:
             labels[:, 1:5] = xyxy2xywhn(labels[:, 1:5], w=img.shape[1], h=img.shape[0])  # xyxy to xywh normalized
-
+        print("img.shape[1]",img.shape[1])
+        print("img.shape[0]",img.shape[0])
         if self.augment:
             # flip up-down
             if random.random() < hyp['flipud']:

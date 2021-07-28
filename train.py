@@ -344,14 +344,14 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
                 #print(".................")
                 #print("targets: ",targets.size())
                 #print("targets: ",targets)
-                print(".................")
-                print("imgs: ",imgs.size())
-                print(".................")
-                print("targets: ",targets.size())
-                print(".................")
-                print("pred: ",pred[0].size())
-                print("pred: ",pred[1].size())
-                print("pred: ",pred[2].size())
+                #print(".................")
+                #print("imgs: ",imgs.size()) #   torch.Size([16, 3, 640, 640])
+                #print(".................")
+                #print("targets: ",targets.size()) #  torch.Size([???, 6])
+                #print(".................")
+                #print("pred: ",pred[0].size()) # torch.Size([16, 3, 80, 80, 85])
+                #print("pred: ",pred[1].size()) # torch.Size([16, 3, 40, 40, 85])
+                #print("pred: ",pred[2].size()) # torch.Size([16, 3, 20, 20, 85])
                 loss, loss_items = compute_loss(pred, targets.to(device))  # loss scaled by batch_size
                 if RANK != -1:
                     loss *= WORLD_SIZE  # gradient averaged between devices in DDP mode
