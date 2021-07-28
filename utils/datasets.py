@@ -525,12 +525,12 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             img, (h0, w0), (h, w) = load_image(self, index)
             print(index, "orginial image size" , h0," ", w0)
             print(index, "resized image size" , h," ", w)
-            print(index, "the shape of current img", img.size)
+            print(index, "the shape of current img", img.shape)
             # Letterbox
             shape = self.batch_shapes[self.batch[index]] if self.rect else self.img_size  # final letterboxed shape
             print(index, "defined shape is ", shape)
             img, ratio, pad = letterbox(img, shape, auto=False, scaleup=self.augment)
-            print(index, "the shape of letterbox img", img.size)
+            print(index, "the shape of letterbox img", img.shape)
             shapes = (h0, w0), ((h / h0, w / w0), pad)  # for COCO mAP rescaling
 
             labels = self.labels[index].copy()
@@ -558,8 +558,8 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         nL = len(labels)  # number of labels
         if nL:
             labels[:, 1:5] = xyxy2xywhn(labels[:, 1:5], w=img.shape[1], h=img.shape[0])  # xyxy to xywh normalized
-        print("img.shape[1]",img.shape[1])
-        print("img.shape[0]",img.shape[0])
+        print(index, "img.shape[1]",img.shape[1])
+        print(index, "img.shape[0]",img.shape[0])
         if self.augment:
             # flip up-down
             if random.random() < hyp['flipud']:
@@ -578,9 +578,11 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             labels_out[:, 1:] = torch.from_numpy(labels)
         #print(labels_out)
         # Convert
+
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3 x img_height x img_width
         img = np.ascontiguousarray(img)
-
+        print(index, "img.shape[1]",img.shape[1])
+        print(index, "img.shape[0]",img.shape[0])
         return torch.from_numpy(img), labels_out, self.img_files[index], shapes
 
     @staticmethod
