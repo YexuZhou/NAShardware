@@ -593,7 +593,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         for i, l in enumerate(label):
             l[:, 0] = i  # add target image index for build_targets()
 			
-        for i in img:
+        #for i in img:
             #print(".........",i.shape) # add target image index for build_targets()
         return torch.stack(img, 0), torch.cat(label, 0), path, shapes
 
