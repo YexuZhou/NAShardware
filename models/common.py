@@ -24,6 +24,114 @@ def autopad(k, p=None):  # kernel, padding
         p = k // 2 if isinstance(k, int) else [x // 2 for x in k]  # auto-pad
     return p
 
+# -------------------------------------
+class ConvBNReLU(nn.Module):
+    # Standard convolution  Conv Batch Relu
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(ConvBNReLU, self).__init__()
+        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)
+        self.bn = nn.BatchNorm2d(c2)
+        self.act = nn.ReLU() 
+
+    def forward(self, x):
+        return self.act(self.bn(self.conv(x)))
+		
+class DW_Conv(nn.Module):
+    # depthwise separable convolutions from MobilnetV1  https://arxiv.org/pdf/1704.04861.pdf
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1):
+        super(DW_Conv, self).__init__()
+
+        self.conv1 = ConvBNReLU(c1=c1, c2=c1,  k=k, s=s,  p=None, g=c1)
+        self.conv2 = ConvBNReLU(c1=c1, c2=c2,  k=1, s=1,  p=None, g=1)        
+
+    def forward(self, x):
+        return self.conv2(self.conv1(x))
+
+class IR_Conv(nn.Module):
+    # Inverted_Residuals_Conv convolutions from MobilnetV2  https://arxiv.org/pdf/1801.04381.pdf
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1,expand_ratio=1):
+        super(IR_Conv, self).__init__()
+        self.expand_ratio = expand_ratio
+        self.use_res_connect = s==1 and c1 == c2
+        hidden_dim = int(round(c1 * expand_ratio))
+        layers = []
+        if expand_ratio != 1:
+
+            layers.append(ConvBNReLU(c1=c1, c2=hidden_dim,  k=1, s=1,  p=None, g=1))
+
+        layers.append(ConvBNReLU(c1=hidden_dim, c2=hidden_dim,  k=k, s=s,  p=p, g=hidden_dim))        
+
+        layers.append(nn.Conv2d(in_channels=hidden_dim, 
+                                out_channels=c2, 
+                                kernel_size=1, 
+                                stride=1, 
+                                padding=0, 
+                                groups=1,
+                                bias=False))
+        layers.append(nn.BatchNorm2d(c2))
+        
+        self.InvertedResidual_conv = nn.Sequential(*layers)
+        
+    def forward(self, x):
+        
+        if self.use_res_connect:
+            return x + self.InvertedResidual_conv(x)
+        else:
+            return self.InvertedResidual_conv(x)
+
+
+class DW_Bottleneck(nn.Module):
+    # Standard bottleneck
+    def __init__(self, c1, c2, k=3, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, shortcut, groups, expansion
+        super(Bottleneck, self).__init__()
+        
+        hidden_dim = int(c2 * e)  # hidden channels
+        
+        self.conv1 = ConvBNReLU(c1 = c1, c2 = hidden_dim, k=1, s=1, p=None, g=1)
+        # if lightweight !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        self.conv2 = ConvBNReLU(c1 = hidden_dim, c2=c2, k=k, s=1, p=None, g=g)
+        
+        self.add = shortcut and c1 == c2
+
+    def forward(self, x):
+        return x + self.conv2(self.conv1(x)) if self.add else self.conv2(self.conv1(x))    
+
+class CSP_Bottleneck(nn.Module):
+    # CSP Bottleneck with 3 convolutions https://github.com/WongKinYiu/CrossStagePartialNetworks 
+    
+    def __init__(self, c1, c2, n=1, shortcut=True, k=3, g=1, e_1=0.5, e_2=1.0):  # ch_in, ch_out, number, shortcut, groups, expansion
+        super(CSP_Bottleneck, self).__init__()
+        
+        hidden_dim = int(c2 * e_1)  # hidden channels
+        
+        self.conv1 = ConvBNReLU(c1=c1, c2=hidden_dim, k=1, s=1, p=None, g=1)
+        self.conv2 = ConvBNReLU(c1=c1, c2=hidden_dim, k=1, s=1, p=None, g=1)
+        self.conv3 = ConvBNReLU(c1=2 * hidden_dim, c2=c2, k=1, s=1, p=None, g=1)  #
+        
+        self.Bottleneck = nn.Sequential(*[DW_Bottleneck(hidden_dim, hidden_dim, k, shortcut, g, e=e_2) for _ in range(n)])
+
+    def forward(self, x):
+        return self.conv3(torch.cat((self.Bottleneck(self.conv1(x)), self.conv2(x)), dim=1))
+
+
+
+class LW_SPP(nn.Module):
+    # Spatial pyramid pooling layer / multi_maxpooling aggregation
+    def __init__(self, c1, c2, k=(5, 9, 13), e_m=0.5):
+        super(SPP, self).__init__()
+        
+        hidden_dim = int(c1 * e_m) # hidden channels
+        self.conv1 = ConvBNReLU(c1=c1, c2=hidden_dim, k=1, s=1, p=None, g=1)
+        self.maxpools = nn.ModuleList([nn.MaxPool2d(kernel_size=x, stride=1, padding=x // 2) for x in k])        
+        self.conv2 = ConvBNReLU(c1=hidden_dim * (len(k) + 1), c2=c2, k=1, s=1, p=None, g=1)
+
+
+    def forward(self, x):
+        x = self.conv1(x)
+        return self.conv2(torch.cat([x] + [m(x) for m in self.maxpools], 1))
+
+
+# -------------------------------------
 
 def DWConv(c1, c2, k=1, s=1, act=True):
     # Depthwise convolution
