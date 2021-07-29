@@ -523,23 +523,23 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         else:
             # Load image
             img, (h0, w0), (h, w) = load_image(self, index)
-            print(index, "orginial image size" , h0," ", w0)
-            print(index, "resized image size" , h," ", w)
-            print(index, "the shape of current img", img.shape)
+            #print(index, "orginial image size" , h0," ", w0)
+            #print(index, "resized image size" , h," ", w)
+            #print(index, "the shape of current img", img.shape)
             # Letterbox
             shape = self.batch_shapes[self.batch[index]] if self.rect else self.img_size  # final letterboxed shape
-            print(index, "defined shape is ", shape)
+            #print(index, "defined shape is ", shape)
             img, ratio, pad = letterbox(img, shape, auto=False, scaleup=self.augment)
-            print(index, "the shape of letterbox img", img.shape)
-            print(index, "the ratio of letterbox img", ratio)
-            print(index, "the pad of letterbox img", pad)
+            #print(index, "the shape of letterbox img", img.shape)
+            #print(index, "the ratio of letterbox img", ratio)
+            #print(index, "the pad of letterbox img", pad)
             shapes = (h0, w0), ((h / h0, w / w0), pad)  # for COCO mAP rescaling
 
             labels = self.labels[index].copy()
             if labels.size:  # normalized xywh to pixel xyxy format
                 labels[:, 1:] = xywhn2xyxy(labels[:, 1:], ratio[0] * w, ratio[1] * h, padw=pad[0], padh=pad[1])
-            print(index, "ratio[0] * w",ratio[0] * w)
-            print(index, "ratio[1] * h",ratio[1] * h)
+            #print(index, "ratio[0] * w",ratio[0] * w)
+            #print(index, "ratio[1] * h",ratio[1] * h)
         if self.augment:
             # Augment imagespace
             if not mosaic:
@@ -560,8 +560,8 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         nL = len(labels)  # number of labels
         if nL:
             labels[:, 1:5] = xyxy2xywhn(labels[:, 1:5], w=img.shape[1], h=img.shape[0])  # xyxy to xywh normalized
-        print(index, "img.shape[1]",img.shape[1])
-        print(index, "img.shape[0]",img.shape[0])
+        #print(index, "img.shape[1]",img.shape[1])
+        #print(index, "img.shape[0]",img.shape[0])
         if self.augment:
             # flip up-down
             if random.random() < hyp['flipud']:
@@ -583,8 +583,8 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
 
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3 x img_height x img_width
         img = np.ascontiguousarray(img)
-        print(index, "img.shape[1]",img.shape[1])
-        print(index, "img.shape[0]",img.shape[0])
+        #print(index, "img.shape[1]",img.shape[1])
+        #print(index, "img.shape[0]",img.shape[0])
         return torch.from_numpy(img), labels_out, self.img_files[index], shapes
 
     @staticmethod
@@ -594,7 +594,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
             l[:, 0] = i  # add target image index for build_targets()
 			
         for i in img:
-            print(".........",i.shape) # add target image index for build_targets()
+            #print(".........",i.shape) # add target image index for build_targets()
         return torch.stack(img, 0), torch.cat(label, 0), path, shapes
 
     @staticmethod

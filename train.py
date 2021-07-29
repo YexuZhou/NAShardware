@@ -62,10 +62,10 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
         opt.resume, opt.notest, opt.nosave, opt.workers
 
     # Directories
-    print("..........................................")
-    print("RANK: ",RANK)
-    print("..........................................")
-    print("opt :",opt)
+    #print("..........................................")
+    #print("RANK: ",RANK)
+    #print("..........................................")
+    #print("opt :",opt)
 
     save_dir = Path(save_dir)
     wdir = save_dir / 'weights'
@@ -230,7 +230,7 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
                                             hyp=hyp, augment=True, cache=opt.cache_images, rect=opt.rect, rank=RANK,
                                             workers=workers,
                                             image_weights=opt.image_weights, quad=opt.quad, prefix=colorstr('train: '))
-    print("..........", opt.quad)
+    #print("..........", opt.quad)
     mlc = np.concatenate(dataset.labels, 0)[:, 0].max()  # max label class
     nb = len(dataloader)  # number of batches
     assert mlc < nc, 'Label class %g exceeds nc=%g in %s. Possible class labels are 0-%g' % (mlc, nc, data, nc - 1)
